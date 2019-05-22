@@ -19,7 +19,11 @@ class League_Manager (object):
         self.current_middle_id = 1
         
     #MAKE DECRYPT HASH SOON        
-    def create_league (self, league_name, ownerId, team_name):
+    def create_league (self, settings):
+        settings_json = json.loads(settings)
+        league_name = settings_json['league_name']
+        ownerId = int(settings_json['owner_id'])
+        team_name = settings_json['team_name']
         data = (str(self.current_league_id), str(league_name), str(ownerId))
         cursor.execute("INSERT INTO leagues (id, league_name, ownerId) VALUES (%s, %s, %s)", data)
         data = (str(self.current_middle_id), str(ownerId), str(self.current_league_id), team_name, "0", "0")
@@ -101,20 +105,45 @@ class League_Manager (object):
         print (result)
         return result
     
-    """ #players is a list of tuples: (player name 0, current team 1, current position 2, future team 3, future role 4)
-    def trade (self, *players):
-        for player in players: """
-        
+    def get_pro_info (self, pro_name):
+        cursor.execute ("SELECT team, role, image, kills, deaths, assists, csm, dpm, wpm FROM pros WHERE name=%s", (pro_name,))
+        pro = cursor.fetchone()
+        stuff = {"team" : str(pro[0]), "role" : str(pro[1]), "image" : str(pro[2]), "kills" : str(pro[3]), "deaths" : str(pro[4]), "assists" : str(pro[5]), "csm" : str(pro[6]), "dpm" : str(pro[7]), "wpm" : str(pro[8])} 
+        print (json.dumps(stuff))
+        return json.dumps(stuff)
+    
     def get_pros_from_team (self, middle_id):
         cursor.execute("SELECT top, jungle, middle, adc, support, bench1, bench2 FROM middle WHERE idmiddle=%s", (str(middle_id),))
         players = {}
-        for player in cursor.fetchone():
-            cursor.execute("SELECT image, team, role, kills, deaths, assists WHERE name=%s", (player,))
-            temp = cursor.fetchone()
-            players[player] = {"image" : temp[0], "team" : temp[1], "role" : temp[2], "kills" : temp[3], "deaths" : temp[4], "assists" : temp[5]}
+        for team in cursor.fetchall():
+            count = 1
+            for player in team:
+                if count == 1:
+                    role = "top"
+                elif count == 2:
+                    role = "jungle"
+                elif count == 3:
+                    role = "middle"
+                elif count == 4:
+                    role = "adc"
+                elif count == 5:
+                    role = "support"
+                elif count == 6:
+                    role = "bench 1"
+                elif count == 7:
+                    role = "bench 2"
+                if not player == None:
+                    cursor.execute("SELECT image, team, role, kills, deaths, assists FROM pros WHERE name=%s", (player,))
+                    temp = cursor.fetchone()
+                    players[player] = {"image" : temp[0], "team" : temp[1], "role" : role, "kills" : temp[3], "deaths" : temp[4], "assists" : temp[5]}
+                count += 1
         print (json.dumps(players))
         return json.dumps(players)
             
+    
+    """ #players is a list of tuples: (player name 0, current team 1, current position 2, future team 3, future role 4)
+    def trade (self, *players):
+        for player in players: """
         
         
         

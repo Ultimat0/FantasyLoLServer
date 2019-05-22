@@ -9,6 +9,7 @@ import mysql.connector
 import socket
 import UserManager
 import LeagueManager
+import json
 
 
 connection = mysql.connector.connect(host='localhost', database='fantasylol', user='root', password='Marknazzaro13245')
@@ -52,7 +53,8 @@ class Server (object):
         print ("initialized server")
         self.userManager.create_user("default", "password")
         self.userManager.create_user("default1", "password1")
-        self.leagueManager.create_league("butt", 1, "dragons")
+        self.leagueManager.create_league(json.dumps({"league_name" : "butt", "owner_id" : 1, "team_name" : "dragons"}))
+        connection.commit()
         self.leagueManager.add_team(2, 1, "tigers")
         connection.commit()
         self.run_server()
@@ -83,11 +85,16 @@ class Server (object):
             return bytes(str(self.leagueManager.get_teams_from_league(words[1])), "utf-8")
         elif words [0] == "get_free_agents_from_league":
             print ("getting free agents from league")
-            #return bytes(str(self.leagueManager.get_free_agents(words[1])), "utf-8")
             return str(self.leagueManager.get_free_agents(words[1]))
         elif words [0] == "add_pro_to_team":
             print ("adding pro to team")
             return bytes(str(self.leagueManager.add_pro_to_team(words[1], words[2], words[3])), "utf-8")
+        elif words [0] == "get_pros_from_team":
+            print ("getting pros from team")
+            return bytes(str(self.leagueManager.get_pros_from_team(words[1])), "utf-8")
+        elif words [0] == "get_pro_info":
+            print ("getting pro info")
+            return bytes(str(self.leagueManager.get_pro_info(words[1])), "utf-8")
         return bytes("rip 1", "utf-8")
         
     def run_server (self):
@@ -110,7 +117,7 @@ class Server (object):
                     count += 1
                 c.send(bytes(buffer, "utf-8"))
             else:
-                c.send(self.handle_incoming(msg))
+                c.send(incoming)
             c.close()
     
 server = Server()
