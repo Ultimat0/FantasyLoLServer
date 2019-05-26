@@ -10,6 +10,7 @@ import socket
 import UserManager
 import LeagueManager
 import json
+import mysql.connector.constants
 
 
 connection = mysql.connector.connect(host='localhost', database='fantasylol', user='root', password='Marknazzaro13245')
@@ -53,8 +54,7 @@ class Server (object):
         print ("initialized server")
         self.userManager.create_user("default", "password")
         self.userManager.create_user("default1", "password1")
-        self.leagueManager.create_league(json.dumps({"league_name" : "butt", "owner_id" : 1, "team_name" : "dragons"}))
-        connection.commit()
+        self.leagueManager.create_league(json.dumps({"league_name" : "butt", "owner_id" : 1, "team_count" : 8, "team_name" : "dragons"}))
         self.leagueManager.add_team(2, 1, "tigers")
         connection.commit()
         self.run_server()
@@ -73,13 +73,13 @@ class Server (object):
             return bytes(self.userManager.login(words[1], words[2]), "utf-8")
         elif words[0] == "create_league":
             print ("creating league")
-            return bytes(self.leagueManager.create_league(words[1], words[2], words[3]), "utf-8")
+            return bytes(self.leagueManager.create_league(words[1]), "utf-8")
         elif words[0] == "get_users_from_league":
             print ("getting users from league")
             return bytes(str(self.leagueManager.get_users_from_league(words[1])), "utf-8")
         elif words[0] == "get_leagues_from_user":
             print ("getting leagues from user")
-            return bytes(str(self.userManager.get_leagues_from_user(words[1])), "utf-8")
+            return bytes(str(self.leagueManager.get_leagues_from_user(words[1])), "utf-8")
         elif words [0] == "get_teams_from_league":
             print ("getting teams from league")
             return bytes(str(self.leagueManager.get_teams_from_league(words[1])), "utf-8")
@@ -95,6 +95,18 @@ class Server (object):
         elif words [0] == "get_pro_info":
             print ("getting pro info")
             return bytes(str(self.leagueManager.get_pro_info(words[1])), "utf-8")
+        elif words [0] == "accept_trade":
+            print ("trading")
+            return bytes(str(self.leagueManager.trade(words[1])), "utf-8")
+        elif words[0] == "offer_trade":
+            print ("offering trade")
+            return bytes(str(self.leagueManager.offer_trade(words[1])), "utf-8")
+        elif words[0] == "get_trades_from_team":
+            print ("getting trades from team")
+            return bytes(str(self.leagueManager.get_trades(words[1])), "utf-8")
+        elif words[0] == "get_trade":
+            print ("getting specific trade")
+            return bytes(str(self.leagueManager.get_trade(words[1])), "utf-8")
         return bytes("rip 1", "utf-8")
         
     def run_server (self):

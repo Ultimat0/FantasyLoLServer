@@ -12,7 +12,7 @@ import json
 
 connection = mysql.connector.connect(host='localhost', database='fantasylol', user='root', password='Marknazzaro13245')
 
-cursor = connection.cursor()
+cursor = connection.cursor(buffered=True)
 
 class User_Manager (object):
     
@@ -49,13 +49,12 @@ class User_Manager (object):
     def get_leagues_from_user (self, userId):
         ids = []
         data = {}
-        cursor.execute("SELECT leagueId FROM middle WHERE userId=%s", (str(userId),))
+        cursor.execute(str("SELECT leagueId FROM middle WHERE userId=" + "'" + str(userId) + "'"))
         i = cursor.fetchone()
         while not i == None:
-            print (i)
+            print (str(i) + "!!!!!!!!!!!")
             ids.append(i)
-            i = cursor.fetchone()
-        
+            i = cursor.fetchone()        
         for j in ids:
             cursor.execute("SELECT league_name, id FROM leagues WHERE id=%s", (j[0],))
             temp = cursor.fetchone()
