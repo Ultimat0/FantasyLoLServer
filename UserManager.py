@@ -10,7 +10,7 @@ import os
 import hashlib
 import json
 
-connection = mysql.connector.connect(host='localhost', database='fantasylol', user='root', password='Marknazzaro13245')
+connection = mysql.connector.connect(host='localhost', database='fantasylol', user='root', password='')
 
 cursor = connection.cursor(buffered=True)
 
